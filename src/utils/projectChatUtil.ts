@@ -1,0 +1,162 @@
+import { ipcRenderer } from "electron";
+import * as path from "path";
+import store from "../store";
+import { setProjects, addProject, Project } from "../store/projectsSlice";
+
+export interface ChatThread {
+  id: string;
+  title: string;
+  messages: Message[];
+  lastUpdated: number;
+}
+
+export interface Message {
+  id: string;
+  content: string;
+  sender: "user" | "ai";
+  timestamp: Date;
+}
+
+const PROJECTS_STORAGE_KEY = "autocode_projects";
+const CHAT_FILE_NAME = "autocode_chat.json";
+
+let APP_DATA_PATH: string | null = null;
+
+const getAppDataPath = async (): Promise<string> => {
+  if (!APP_DATA_PATH) {
+    APP_DATA_PATH = await ipcRenderer.invoke("get-user-data-path");
+    if (!APP_DATA_PATH) {
+      throw new Error("Failed to get app data path");
+    }
+  }
+  return APP_DATA_PATH;
+};
+
+export const createProject = async (name: string): Promise<Project> => {
+  const appDataPath = await getAppDataPath();
+  const projectPath = path.join(appDataPath, "projects", name);
+
+  const project: Project = {
+    id: Date.now().toString(),
+    name,
+    path: projectPath,
+  };
+
+  const dirResult = await ipcRenderer.invoke("create-directory", projectPath);
+  if (!dirResult.success) {
+    throw new Error(`Failed to create project directory: ${dirResult.error}`);
+  }
+
+  store.dispatch(addProject(project));
+  await saveProjects();
+
+  return project;
+};
+
+export const getProjects = async (): Promise<Project[]> => {
+  const projectsJson = localStorage.getItem(PROJECTS_STORAGE_KEY);
+  const projects: Project[] = projectsJson ? JSON.parse(projectsJson) : [];
+  store.dispatch(setProjects(projects));
+  return projects;
+};
+
+const saveProjects = async (): Promise<void> => {
+  const projects = store.getState().projects.list;
+  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+};
+
+export const saveChat = async (
+  projectPath: string,
+  chatThread: ChatThread,
+): Promise<void> => {
+  const chatFilePath = `${projectPath}/${CHAT_FILE_NAME}`;
+  const result = await ipcRenderer.invoke(
+    "write-file",
+    chatFilePath,
+    JSON.stringify(chatThread),
+  );
+  if (!result.success) {
+    throw new Error(`Failed to save chat: ${result.error}`);
+  }
+};
+
+export const getChat = async (
+  projectPath: string,
+): Promise<ChatThread | null> => {
+  const chatFilePath = `${projectPath}/${CHAT_FILE_NAME}`;
+  const result = await ipcRenderer.invoke("read-file", chatFilePath);
+  if (!result.success) {
+    if (result.code === "ENOENT") {
+      return null; // Chat file doesn't exist yet
+    }
+    throw new Error(`Failed to read chat file: ${result.error}`);
+  }
+  return JSON.parse(result.data);
+};
+
+export const getAllChatsForProject = async (
+  projectPath: string,
+): Promise<ChatThread[]> => {
+  const result = await getChat(projectPath);
+  return result ? [result] : [];
+};
+
+export const createNewChatForProject = async (
+  projectPath: string,
+  chatTitle: string,
+): Promise<ChatThread> => {
+  const newChat: ChatThread = {
+    id: Date.now().toString(),
+    title: chatTitle,
+    messages: [],
+    lastUpdated: Date.now(),
+  };
+
+  await saveChat(projectPath, newChat);
+  return newChat;
+};
+
+export const addMessageToChat = async (
+  projectPath: string,
+  chatId: string,
+  message: Message,
+): Promise<void> => {
+  const chat = await getChat(projectPath);
+  if (!chat) {
+    throw new Error("Chat not found");
+  }
+
+  chat.messages.push(message);
+  chat.lastUpdated = Date.now();
+
+  await saveChat(projectPath, chat);
+};
+
+export const updateProjectDetails = async (project: Project): Promise<void> => {
+  store.dispatch(
+    setProjects(
+      store
+        .getState()
+        .projects.list.map((p) => (p.id === project.id ? project : p)),
+    ),
+  );
+  await saveProjects();
+};
+
+export const deleteProject = async (projectId: string): Promise<void> => {
+  const project = store
+    .getState()
+    .projects.list.find((p) => p.id === projectId);
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  // Note: This doesn't delete the project directory, just removes it from our list
+  // You may want to add file system deletion if that's desired behavior
+  store.dispatch(
+    setProjects(
+      store.getState().projects.list.filter((p) => p.id !== projectId),
+    ),
+  );
+  await saveProjects();
+};
