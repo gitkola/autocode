@@ -1,15 +1,23 @@
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: "./src/renderer.ts",
-  devtool: "inline-source-map",
+  entry: "./src/renderer/index.tsx",
+  target: "electron-renderer",
+  devtool: "source-map",
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: "ts-loader",
+        test: /\.(js|ts|tsx)$/,
         exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+        },
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
     ],
   },
@@ -18,11 +26,19 @@ module.exports = {
   },
   output: {
     filename: "renderer.js",
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist/renderer"),
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/renderer/index.html"),
+    }),
+  ],
   devServer: {
-    contentBase: path.join(__dirname, "src"),
+    static: {
+      directory: path.join(__dirname, "dist/renderer"),
+    },
     compress: true,
     port: 9000,
+    hot: true,
   },
 };
