@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: "./src/renderer/index.tsx",
+  entry: "./src/index.tsx",
   target: "electron-renderer",
   devtool: "source-map",
   module: {
@@ -30,7 +30,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "src/renderer/index.html"),
+      template: path.resolve(__dirname, "src/index.html"),
     }),
   ],
   devServer: {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { getAIResponse } from "../../services/aiService";
+import { RootState } from "../store";
+import { getAIResponse } from "../services/aiService";
 import { ArrowUp } from "./Icons";
-import { getChat, saveChat } from "../../utils/projectChatUtil";
+import { getChat, saveChat } from "../utils/projectChatUtil";
 
 interface Message {
   id: string;
@@ -135,11 +135,10 @@ const AIChat: React.FC = () => {
             className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                message.sender === "user"
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.sender === "user"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
-              }`}
+                }`}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
               <p className="text-xs mt-1 text-gray-500">

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "../store";
 import {
   setTheme,
   setCodeAutoSave,
   setOpenAISettings,
   setAnthropicSettings,
-} from "../../store/settingsSlice";
+} from "../store/settingsSlice";
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -31,11 +31,10 @@ const Settings: React.FC = () => {
             <button
               key={tab.toLowerCase()}
               onClick={() => setActiveTab(tab.toLowerCase())}
-              className={`${
-                activeTab === tab.toLowerCase()
+              className={`${activeTab === tab.toLowerCase()
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm`}
+                } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm`}
             >
               {tab}
             </button>

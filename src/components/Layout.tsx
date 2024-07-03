@@ -2,15 +2,15 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Sidebar from "./Sidebar";
-import { getProjects, createProject } from "../../utils/projectChatUtil";
-import { RootState } from "../../store";
-import { setActiveProject } from "../../store/projectsSlice";
+import { getProjects, createProject } from "../utils/projectChatUtil";
+import { RootState } from "../store";
+import { setActiveProject } from "../store/projectsSlice";
 
 const Layout: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { list: projects, activeProjectId } = useSelector(
-    (state: RootState) => state.projects,
+    (state: RootState) => state.projects
   );
 
   useEffect(() => {
@@ -27,18 +27,14 @@ const Layout: React.FC = () => {
 
   const handleNewProject = async () => {
     try {
-      const projectName = `New Project ${projects.length + 1}`;
-      const newProject = await createProject(projectName);
-      if (newProject) {
-        dispatch(setActiveProject(newProject.id));
-        navigate(`/project/${newProject.id}`);
-      } else {
-        // User canceled folder selection
-        console.log("Project creation canceled");
+      const project = await createProject(); // No need to pass a name here
+      if (project) {
+        dispatch(setActiveProject(project.id));
+        navigate(`/project/${project.id}`);
+        console.log("Opened project:", project.name);
       }
     } catch (error) {
-      console.error("Failed to create new project:", error);
-      // Handle error (e.g., show error message to user)
+      console.error("Failed to create/open project:", error);
     }
   };
 

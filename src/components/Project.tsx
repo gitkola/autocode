@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { Project as ProjectType } from "../../store/projectsSlice";
+import { RootState } from "../store";
+import { Project as ProjectType } from "../store/projectsSlice";
 
 const Project: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();

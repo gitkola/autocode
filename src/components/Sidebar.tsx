@@ -1,15 +1,7 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
-import {
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  Dashboard,
-  CodeEditor,
-  FileExplorer,
-  Settings,
-} from "./Icons";
-import { Project } from "../../store/projectsSlice";
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { ChevronDown, ChevronRight, Plus, Dashboard, CodeEditor, FileExplorer, Settings } from './Icons';
+import { Project } from '../store/projectsSlice';
 
 interface SidebarProps {
   projects: Project[];
@@ -18,19 +10,14 @@ interface SidebarProps {
   onSelectProject: (projectId: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  projects,
-  activeProjectId,
-  onNewProject,
-  onSelectProject,
-}) => {
-  const [isProjectsExpanded, setIsProjectsExpanded] = React.useState(true);
+const Sidebar: React.FC<SidebarProps> = ({ projects, activeProjectId, onNewProject, onSelectProject }) => {
+  const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
 
   const navItems = [
-    { name: "Dashboard", icon: Dashboard, path: "/" },
-    { name: "Code Editor", icon: CodeEditor, path: "/code-editor" },
-    { name: "File Explorer", icon: FileExplorer, path: "/file-explorer" },
-    { name: "Settings", icon: Settings, path: "/settings" },
+    { name: 'Dashboard', icon: Dashboard, path: '/' },
+    { name: 'Code Editor', icon: CodeEditor, path: '/code-editor' },
+    { name: 'File Explorer', icon: FileExplorer, path: '/file-explorer' },
+    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   return (
@@ -45,10 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center px-4 py-2 text-sm ${
-                    isActive
-                      ? "bg-gray-700 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  `flex items-center px-4 py-2 text-sm ${isActive ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`
                 }
               >
@@ -83,11 +67,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <li key={project.id}>
                       <button
                         onClick={() => onSelectProject(project.id)}
-                        className={`flex items-center w-full px-4 py-2 text-sm ${
-                          project.id === activeProjectId
-                            ? "bg-gray-700 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                        }`}
+                        className={`flex items-center w-full px-4 py-2 text-sm ${project.id === activeProjectId
+                            ? 'bg-gray-700 text-white'
+                            : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          }`}
                       >
                         {project.name}
                       </button>

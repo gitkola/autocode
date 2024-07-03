@@ -32,7 +32,7 @@ const getAppDataPath = async (): Promise<string> => {
   return APP_DATA_PATH;
 };
 
-export const createProject = async (name: string): Promise<Project | null> => {
+export const createProject = async (): Promise<Project | null> => {
   const result = await ipcRenderer.invoke("select-folder");
 
   if (result.canceled || !result.filePath) {
@@ -41,6 +41,14 @@ export const createProject = async (name: string): Promise<Project | null> => {
 
   const projectPath = result.filePath;
   const folderName = path.basename(projectPath);
+
+  // Check if a project with this path already exists
+  const existingProjects = store.getState().projects.list;
+  const existingProject = existingProjects.find((p) => p.path === projectPath);
+  if (existingProject) {
+    console.log("Project already exists:", existingProject);
+    return existingProject; // This should be the correct existing project
+  }
 
   const project: Project = {
     id: Date.now().toString(),
@@ -73,13 +81,13 @@ const saveProjects = async (): Promise<void> => {
 
 export const saveChat = async (
   projectPath: string,
-  chatThread: ChatThread,
+  chatThread: ChatThread
 ): Promise<void> => {
   const chatFilePath = `${projectPath}/${CHAT_FILE_NAME}`;
   const result = await ipcRenderer.invoke(
     "write-file",
     chatFilePath,
-    JSON.stringify(chatThread),
+    JSON.stringify(chatThread)
   );
   if (!result.success) {
     throw new Error(`Failed to save chat: ${result.error}`);
@@ -87,7 +95,7 @@ export const saveChat = async (
 };
 
 export const getChat = async (
-  projectPath: string,
+  projectPath: string
 ): Promise<ChatThread | null> => {
   const chatFilePath = `${projectPath}/${CHAT_FILE_NAME}`;
   const result = await ipcRenderer.invoke("read-file", chatFilePath);
@@ -101,7 +109,7 @@ export const getChat = async (
 };
 
 export const getAllChatsForProject = async (
-  projectPath: string,
+  projectPath: string
 ): Promise<ChatThread[]> => {
   const result = await getChat(projectPath);
   return result ? [result] : [];
@@ -109,7 +117,7 @@ export const getAllChatsForProject = async (
 
 export const createNewChatForProject = async (
   projectPath: string,
-  chatTitle: string,
+  chatTitle: string
 ): Promise<ChatThread> => {
   const newChat: ChatThread = {
     id: Date.now().toString(),
@@ -125,7 +133,7 @@ export const createNewChatForProject = async (
 export const addMessageToChat = async (
   projectPath: string,
   chatId: string,
-  message: Message,
+  message: Message
 ): Promise<void> => {
   const chat = await getChat(projectPath);
   if (!chat) {
@@ -143,8 +151,8 @@ export const updateProjectDetails = async (project: Project): Promise<void> => {
     setProjects(
       store
         .getState()
-        .projects.list.map((p) => (p.id === project.id ? project : p)),
-    ),
+        .projects.list.map((p) => (p.id === project.id ? project : p))
+    )
   );
   await saveProjects();
 };
@@ -161,8 +169,8 @@ export const deleteProject = async (projectId: string): Promise<void> => {
   // You may want to add file system deletion if that's desired behavior
   store.dispatch(
     setProjects(
-      store.getState().projects.list.filter((p) => p.id !== projectId),
-    ),
+      store.getState().projects.list.filter((p) => p.id !== projectId)
+    )
   );
   await saveProjects();
 };

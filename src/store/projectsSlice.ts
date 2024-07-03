@@ -24,11 +24,13 @@ const projectsSlice = createSlice({
       state.list = action.payload;
     },
     addProject: (state, action: PayloadAction<Project>) => {
-      state.list.push(action.payload);
+      if (!state.list.some((p) => p.id === action.payload.id)) {
+        state.list.push(action.payload);
+      }
     },
     updateProject: (state, action: PayloadAction<Project>) => {
       const index = state.list.findIndex(
-        (project) => project.id === action.payload.id,
+        (project) => project.id === action.payload.id
       );
       if (index !== -1) {
         state.list[index] = action.payload;
@@ -36,10 +38,10 @@ const projectsSlice = createSlice({
     },
     removeProject: (state, action: PayloadAction<string>) => {
       state.list = state.list.filter(
-        (project) => project.id !== action.payload,
+        (project) => project.id !== action.payload
       );
     },
-    setActiveProject: (state, action: PayloadAction<string | null>) => {
+    setActiveProject: (state, action: PayloadAction<string>) => {
       state.activeProjectId = action.payload;
     },
   },
