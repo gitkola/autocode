@@ -28,10 +28,10 @@ const Layout: React.FC = () => {
   const handleNewProject = async () => {
     try {
       const project = await createProject();
+      console.log("Created project:", project);
       if (project) {
         dispatch(setActiveProject(project.id));
         navigate(`/project/${project.id}`);
-        console.log("Opened project:", project.name);
       }
     } catch (error) {
       console.error("Failed to create/open project:", error);

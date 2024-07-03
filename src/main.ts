@@ -19,10 +19,10 @@ function createWindow() {
   } else {
     win.loadURL(
       url.format({
-        pathname: path.join(__dirname, "../renderer/index.html"),
+        pathname: path.join(__dirname, "../index.html"),
         protocol: "file:",
         slashes: true,
-      }),
+      })
     );
   }
 
@@ -34,7 +34,7 @@ function createWindow() {
         // ERR_FILE_NOT_FOUND
         win.loadURL(validatedURL);
       }
-    },
+    }
   );
 }
 
@@ -50,11 +50,6 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
-});
-
-// Add this new handler
-ipcMain.handle("get-user-data-path", () => {
-  return app.getPath("userData");
 });
 
 ipcMain.handle("create-directory", async (_, dirPath: string) => {

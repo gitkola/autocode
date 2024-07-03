@@ -20,18 +20,6 @@ export interface Message {
 const PROJECTS_STORAGE_KEY = "autocode_projects";
 const CHAT_FILE_NAME = "autocode_chat.json";
 
-let APP_DATA_PATH: string | null = null;
-
-const getAppDataPath = async (): Promise<string> => {
-  if (!APP_DATA_PATH) {
-    APP_DATA_PATH = await ipcRenderer.invoke("get-user-data-path");
-    if (!APP_DATA_PATH) {
-      throw new Error("Failed to get app data path");
-    }
-  }
-  return APP_DATA_PATH;
-};
-
 export const createProject = async (): Promise<Project | null> => {
   const result = await ipcRenderer.invoke("select-folder");
 
@@ -42,12 +30,10 @@ export const createProject = async (): Promise<Project | null> => {
   const projectPath = result.filePath;
   const folderName = path.basename(projectPath);
 
-  // Check if a project with this path already exists
   const existingProjects = store.getState().projects.list;
   const existingProject = existingProjects.find((p) => p.path === projectPath);
   if (existingProject) {
-    console.log("Project already exists:", existingProject);
-    return existingProject; // This should be the correct existing project
+    return existingProject;
   }
 
   const project: Project = {
@@ -55,11 +41,6 @@ export const createProject = async (): Promise<Project | null> => {
     name: folderName,
     path: projectPath,
   };
-
-  const dirResult = await ipcRenderer.invoke("create-directory", projectPath);
-  if (!dirResult.success) {
-    throw new Error(`Failed to create project directory: ${dirResult.error}`);
-  }
 
   store.dispatch(addProject(project));
   await saveProjects();
@@ -108,13 +89,6 @@ export const getChat = async (
   return JSON.parse(result.data);
 };
 
-export const getAllChatsForProject = async (
-  projectPath: string
-): Promise<ChatThread[]> => {
-  const result = await getChat(projectPath);
-  return result ? [result] : [];
-};
-
 export const createNewChatForProject = async (
   projectPath: string,
   chatTitle: string
@@ -146,16 +120,16 @@ export const addMessageToChat = async (
   await saveChat(projectPath, chat);
 };
 
-export const updateProjectDetails = async (project: Project): Promise<void> => {
-  store.dispatch(
-    setProjects(
-      store
-        .getState()
-        .projects.list.map((p) => (p.id === project.id ? project : p))
-    )
-  );
-  await saveProjects();
-};
+// export const updateProjectDetails = async (project: Project): Promise<void> => {
+//   store.dispatch(
+//     setProjects(
+//       store
+//         .getState()
+//         .projects.list.map((p) => (p.id === project.id ? project : p))
+//     )
+//   );
+//   await saveProjects();
+// };
 
 export const deleteProject = async (projectId: string): Promise<void> => {
   const project = store
