@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as url from "url";
@@ -67,6 +67,18 @@ ipcMain.handle("create-directory", async (_, dirPath: string) => {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
     };
+  }
+});
+
+ipcMain.handle("select-folder", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory", "createDirectory"],
+  });
+
+  if (result.canceled) {
+    return { canceled: true };
+  } else {
+    return { canceled: false, filePath: result.filePaths[0] };
   }
 });
 

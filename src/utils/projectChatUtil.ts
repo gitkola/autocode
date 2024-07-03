@@ -32,13 +32,19 @@ const getAppDataPath = async (): Promise<string> => {
   return APP_DATA_PATH;
 };
 
-export const createProject = async (name: string): Promise<Project> => {
-  const appDataPath = await getAppDataPath();
-  const projectPath = path.join(appDataPath, "projects", name);
+export const createProject = async (name: string): Promise<Project | null> => {
+  const result = await ipcRenderer.invoke("select-folder");
+
+  if (result.canceled || !result.filePath) {
+    return null;
+  }
+
+  const projectPath = result.filePath;
+  const folderName = path.basename(projectPath);
 
   const project: Project = {
     id: Date.now().toString(),
-    name,
+    name: folderName,
     path: projectPath,
   };
 

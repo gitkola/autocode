@@ -29,8 +29,13 @@ const Layout: React.FC = () => {
     try {
       const projectName = `New Project ${projects.length + 1}`;
       const newProject = await createProject(projectName);
-      dispatch(setActiveProject(newProject.id));
-      navigate(`/project/${newProject.id}`);
+      if (newProject) {
+        dispatch(setActiveProject(newProject.id));
+        navigate(`/project/${newProject.id}`);
+      } else {
+        // User canceled folder selection
+        console.log("Project creation canceled");
+      }
     } catch (error) {
       console.error("Failed to create new project:", error);
       // Handle error (e.g., show error message to user)
