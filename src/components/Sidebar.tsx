@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Plus, Dashboard, CodeEditor, FileExplorer, Settings } from './Icons';
 import { Project } from '../store/projectsSlice';
+import ProjectItem from './ProjectItem';
 
 interface SidebarProps {
   projects: Project[];
   activeProjectId: string | null;
   onNewProject: () => void;
   onSelectProject: (projectId: string) => void;
+  onDeleteProject: (projectId: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ projects, activeProjectId, onNewProject, onSelectProject }) => {
+const Sidebar: React.FC<SidebarProps> = ({ projects, activeProjectId, onNewProject, onSelectProject, onDeleteProject }) => {
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
 
   const navItems = [
@@ -54,26 +56,23 @@ const Sidebar: React.FC<SidebarProps> = ({ projects, activeProjectId, onNewProje
               Projects
             </button>
             {isProjectsExpanded && (
-              <div className="ml-4">
+              <div className="mx-2">
                 <button
                   onClick={onNewProject}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="flex items-center w-full px-4 py-2 rounded-md text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                 >
-                  <Plus className="mr-3" size={16} />
+                  <Plus className="mr-2" size={16} />
                   New Project
                 </button>
                 <ul>
                   {projects.map((project) => (
                     <li key={project.id}>
-                      <button
-                        onClick={() => onSelectProject(project.id)}
-                        className={`flex items-center w-full px-4 py-2 text-sm ${project.id === activeProjectId
-                            ? 'bg-gray-700 text-white'
-                            : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                          }`}
-                      >
-                        {project.name}
-                      </button>
+                      <ProjectItem
+                        project={project}
+                        isActive={project.id === activeProjectId}
+                        onSelectProject={() => onSelectProject(project.id)}
+                        onDeleteProject={onDeleteProject}
+                      />
                     </li>
                   ))}
                 </ul>

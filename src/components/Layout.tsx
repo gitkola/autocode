@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Sidebar from "./Sidebar";
-import { getProjects, createProject } from "../utils/projectChatUtil";
+import { getProjects, createProject, deleteProject } from "../utils/projectChatUtil";
 import { RootState } from "../store";
 import { setActiveProject } from "../store/projectsSlice";
 
@@ -27,7 +27,7 @@ const Layout: React.FC = () => {
 
   const handleNewProject = async () => {
     try {
-      const project = await createProject(); // No need to pass a name here
+      const project = await createProject();
       if (project) {
         dispatch(setActiveProject(project.id));
         navigate(`/project/${project.id}`);
@@ -35,6 +35,14 @@ const Layout: React.FC = () => {
       }
     } catch (error) {
       console.error("Failed to create/open project:", error);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+    } catch (error) {
+      console.error("Failed to delete project:", error);
     }
   };
 
@@ -50,6 +58,7 @@ const Layout: React.FC = () => {
         activeProjectId={activeProjectId}
         onNewProject={handleNewProject}
         onSelectProject={handleSelectProject}
+        onDeleteProject={handleDeleteProject}
       />
       <main className="flex-1 overflow-y-auto">
         <Outlet />

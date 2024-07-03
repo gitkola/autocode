@@ -180,3 +180,45 @@ export const ArrowUp: React.FC<IconProps> = ({
     <polyline points="5 12 12 5 19 12"></polyline>
   </svg>
 );
+
+export const ThreeDotsIcon: React.FC<IconProps> = ({
+  size = 24,
+  color = "currentColor",
+  className = "",
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    className={className}
+  >
+    <circle cx="5" cy="12" r="2" fill="currentColor" />
+    <circle cx="12" cy="12" r="2" fill="currentColor" />
+    <circle cx="19" cy="12" r="2" fill="currentColor" />
+  </svg>
+);
+
+export const DeleteIcon: React.FC<IconProps> = ({
+  size = 24,
+  color = "currentColor",
+  className = "",
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    className={className}
+  >
+    <path d="M3 6h18" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M8 6v12c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10 11v6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14 11v6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5 6h14V4H5v2z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
