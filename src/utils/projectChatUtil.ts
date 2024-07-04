@@ -2,6 +2,7 @@ import { ipcRenderer } from "electron";
 import * as path from "path";
 import store from "../store";
 import { setProjects, addProject, Project } from "../store/projectsSlice";
+import { CHAT_FILE_NAME, LOCAL_STORAGE_KEY_PROJECTS } from "../constants";
 
 export interface ChatThread {
   id: string;
@@ -11,14 +12,10 @@ export interface ChatThread {
 }
 
 export interface Message {
-  id: string;
+  id: number;
   content: string;
   sender: "user" | "ai";
-  timestamp: Date;
 }
-
-const PROJECTS_STORAGE_KEY = "autocode_projects";
-const CHAT_FILE_NAME = "autocode_chat.json";
 
 export const createProject = async (): Promise<Project | null> => {
   const result = await ipcRenderer.invoke("select-folder");
@@ -49,7 +46,7 @@ export const createProject = async (): Promise<Project | null> => {
 };
 
 export const getProjects = async (): Promise<Project[]> => {
-  const projectsJson = localStorage.getItem(PROJECTS_STORAGE_KEY);
+  const projectsJson = localStorage.getItem(LOCAL_STORAGE_KEY_PROJECTS);
   const projects: Project[] = projectsJson ? JSON.parse(projectsJson) : [];
   store.dispatch(setProjects(projects));
   return projects;
@@ -57,7 +54,7 @@ export const getProjects = async (): Promise<Project[]> => {
 
 const saveProjects = async (): Promise<void> => {
   const projects = store.getState().projects.list;
-  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+  localStorage.setItem(LOCAL_STORAGE_KEY_PROJECTS, JSON.stringify(projects));
 };
 
 export const saveChat = async (
@@ -106,7 +103,6 @@ export const createNewChatForProject = async (
 
 export const addMessageToChat = async (
   projectPath: string,
-  chatId: string,
   message: Message
 ): Promise<void> => {
   const chat = await getChat(projectPath);

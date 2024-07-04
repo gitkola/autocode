@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { LOCAL_STORAGE_KEY_SETTINGS } from "../constants";
 
 interface SettingsState {
   general: {
@@ -34,9 +35,8 @@ const defaultInitialState: SettingsState = {
   },
 };
 
-// Load initial state from localStorage if it exists
 const loadInitialState = (): SettingsState => {
-  const savedSettings = localStorage.getItem("autoCodeSettings");
+  const savedSettings = localStorage.getItem(LOCAL_STORAGE_KEY_SETTINGS);
   if (savedSettings) {
     return JSON.parse(savedSettings);
   }
@@ -55,13 +55,13 @@ const settingsSlice = createSlice({
     },
     setOpenAISettings: (
       state,
-      action: PayloadAction<Partial<SettingsState["openai"]>>,
+      action: PayloadAction<Partial<SettingsState["openai"]>>
     ) => {
       state.openai = { ...state.openai, ...action.payload };
     },
     setAnthropicSettings: (
       state,
-      action: PayloadAction<Partial<SettingsState["anthropic"]>>,
+      action: PayloadAction<Partial<SettingsState["anthropic"]>>
     ) => {
       state.anthropic = { ...state.anthropic, ...action.payload };
     },

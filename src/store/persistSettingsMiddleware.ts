@@ -1,13 +1,18 @@
 import { Middleware } from "redux";
-import { RootState } from "../store";
+import isEqual from "lodash/isEqual";
+import { LOCAL_STORAGE_KEY_SETTINGS } from "../constants";
 
-export const persistSettingsMiddleware: Middleware<{}, RootState> =
+export const persistSettingsMiddleware: Middleware =
   (store) => (next) => (action) => {
+    const prevSettings = store.getState().settings;
     const result = next(action);
-    const state = store.getState();
-
-    // Persist settings to local storage whenever they change
-    localStorage.setItem("autoCodeSettings", JSON.stringify(state.settings));
+    const { settings } = store.getState();
+    if (!isEqual(prevSettings, settings)) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY_SETTINGS,
+        JSON.stringify(settings)
+      );
+    }
 
     return result;
   };
