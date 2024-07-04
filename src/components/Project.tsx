@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import { Project as ProjectType } from "../store/projectsSlice";
+import AIChat from "./AIChat";
 
 const Project: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -15,14 +16,11 @@ const Project: React.FC = () => {
   }, [projectId, projects]);
 
   if (!project) {
-    return <div>Project not found</div>;
+    return null;
   }
 
   return (
-    <div>
-      <h1>{project.name}</h1>
-      {/* Add more project details and functionality here */}
-    </div>
+    <AIChat />
   );
 };
 

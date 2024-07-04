@@ -5,8 +5,7 @@ import Dashboard from "./components/Dashboard";
 import CodeEditor from "./components/CodeEditor";
 import FileExplorer from "./components/FileExplorer";
 import Settings from "./components/Settings";
-import AIChat from "./components/AIChat";
-import Project from "./components/Project"; // You'll need to create this component
+import Project from "./components/Project";
 
 const App: React.FC = () => {
   return (
@@ -17,9 +16,7 @@ const App: React.FC = () => {
           <Route path="code-editor" element={<CodeEditor />} />
           <Route path="file-explorer" element={<FileExplorer />} />
           <Route path="settings" element={<Settings />} />
-          <Route path="ai-chat/:chatId" element={<AIChat />} />
-          <Route path="project/:projectId" element={<Project />} />{" "}
-          {/* Add this line */}
+          <Route path="project/:projectId" element={<Project />} />
         </Route>
       </Routes>
     </Router>

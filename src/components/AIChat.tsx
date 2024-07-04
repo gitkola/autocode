@@ -4,19 +4,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import { getAIResponse } from "../services/aiService";
 import { ArrowUp } from "./Icons";
-import { getChat, saveChat } from "../utils/projectChatUtil";
+import { Message, getChat, saveChat } from "../utils/projectChatUtil";
 
-interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "ai";
-  timestamp: Date;
-}
 
 const AIChat: React.FC = () => {
-  const { projectId, chatId } = useParams<{
+  const { projectId } = useParams<{
     projectId: string;
-    chatId: string;
   }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -31,7 +24,7 @@ const AIChat: React.FC = () => {
 
   useEffect(() => {
     const loadChat = async () => {
-      if (projectId && chatId) {
+      if (projectId) {
         const project = projects.find((p) => p.id === projectId);
         if (project) {
           try {
@@ -49,29 +42,26 @@ const AIChat: React.FC = () => {
       }
     };
     loadChat();
-  }, [projectId, chatId, projects]);
+  }, [projectId, projects]);
 
-  useEffect(() => {
-    const saveCurrentChat = async () => {
-      if (projectId && chatId) {
-        const project = projects.find((p) => p.id === projectId);
-        if (project) {
-          try {
-            await saveChat(project.path, {
-              id: chatId,
-              title: `Chat ${chatId}`,
-              messages,
-              lastUpdated: Date.now(),
-            });
-          } catch (error) {
-            console.error("Failed to save chat:", error);
-            // Handle error (e.g., show error message to user)
-          }
+  const saveCurrentChat = async (messages: Message[]) => {
+    if (projectId) {
+      const project = projects.find((p) => p.id === projectId);
+      if (project) {
+        try {
+          await saveChat(project.path, {
+            id: project.id,
+            title: `Chat ${project.name}`,
+            messages,
+            lastUpdated: Date.now(),
+          });
+        } catch (error) {
+          console.error("Failed to save chat:", error);
+          // Handle error (e.g., show error message to user)
         }
       }
-    };
-    saveCurrentChat();
-  }, [projectId, chatId, messages, projects]);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,16 +73,15 @@ const AIChat: React.FC = () => {
     if (inputMessage.trim() === "") return;
 
     const newUserMessage: Message = {
-      id: Date.now().toString(),
+      id: Date.now(),
       content: inputMessage,
       sender: "user",
-      timestamp: new Date(),
     };
-
+    const newMessages = [...messages, newUserMessage];
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setInputMessage("");
     setIsLoading(true);
-
+    await saveCurrentChat(newMessages);
     try {
       const aiResponse = await getAIResponse(
         inputMessage,
@@ -100,12 +89,12 @@ const AIChat: React.FC = () => {
         activeService,
       );
       const newAIMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 1),
         content: aiResponse,
         sender: "ai",
-        timestamp: new Date(),
       };
       setMessages((prevMessages) => [...prevMessages, newAIMessage]);
+      await saveCurrentChat([...newMessages, newAIMessage]);
     } catch (error) {
       console.error("Error getting AI response:", error);
     } finally {
@@ -136,13 +125,15 @@ const AIChat: React.FC = () => {
           >
             <div
               className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.sender === "user"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
                 }`}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs mt-1 text-gray-500">
-                {message.timestamp.toLocaleTimeString()}
+              <p className="text-xs mt-1 text-gray-100">
+                {(new Date(message.id)).toLocaleDateString()}
+                {" "}
+                {(new Date(message.id)).toLocaleTimeString()}
               </p>
             </div>
           </div>
@@ -156,8 +147,8 @@ const AIChat: React.FC = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t">
-        <div className="flex items-end space-x-4">
+      <div className="p-2 border-t">
+        <div className="flex items-end space-x-2">
           <textarea
             ref={inputRef}
             value={inputMessage}
@@ -166,7 +157,7 @@ const AIChat: React.FC = () => {
             className="flex-grow p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             placeholder="Type your message... (Shift+Enter for new line)"
             disabled={isLoading}
-            rows={1}
+            rows={2}
             style={{ minHeight: "2.5rem", maxHeight: "10rem" }}
           />
           <button
